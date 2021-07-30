@@ -7,21 +7,38 @@ const LoginScreen = ({ navigation, route }) => {
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [isfound, setFound] = useState(false)
 
     const loginPressed = () => {
+        if (email === "") {
+            return
+        }
+        if (password === "") {
+            return
+        }
+
         db.collection("users").get().then(
             (querySnapshot) => {
-              querySnapshot.forEach((documentFromFirestore) => {
-                if(documentFromFirestore.data().email === email && documentFromFirestore.data().password === password){
-                    navigation.replace("Home")
-                }
-              })
+                querySnapshot.forEach((documentFromFirestore) => {
+                    if (documentFromFirestore.data().email === email && documentFromFirestore.data().password === password) {
+                        navigation.replace("Home")
+                    }
+                })
             }
-          )
+        )
+
+        Alert.alert(
+            "Login",
+            "Email/Password Incorrect",
+            [
+                {
+                    text: "OK", onPress: () => console.log("OK Pressed")
+                }
+            ]
+        )
+
     }
 
-    const signUpPressed = () =>{
+    const signUpPressed = () => {
         navigation.navigate("Signup")
     }
 
