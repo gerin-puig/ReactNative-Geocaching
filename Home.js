@@ -13,7 +13,7 @@ const HomeScreen = () => {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
-                tabBarIcon: ({focused, color, size}) => {
+                tabBarIcon: ({ focused, color, size }) => {
                     let iconName
                     if (route.name === "List") {
                         iconName = focused ? "md-list-circle-sharp" : "md-list-circle-outline"
@@ -24,7 +24,7 @@ const HomeScreen = () => {
                     else if (route.name === "Add") {
                         iconName = focused ? "add-circle" : "add-circle-outline"
                     }
-                    else if(route.name ==="Records"){
+                    else if (route.name === "Records") {
                         iconName = focused ? "clipboard" : "clipboard-outline"
                     }
                     return <Ionicons name={iconName} size={size} color={color} />

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { View, TextInput, Button, SafeAreaView, Text, StyleSheet, Alert } from "react-native"
 import { db } from "./FirebaseManager"
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import auth from '@react-native-firebase/auth'
 
 const LoginScreen = ({ navigation, route }) => {
 
@@ -27,12 +28,7 @@ const LoginScreen = ({ navigation, route }) => {
                         isFound = true
                         navigation.replace("Home")
                         AsyncStorage.setItem("uid", documentFromFirestore.id)
-                            .then(
-                                () => {
-                                    console.log("Save was successful!")
-                                }
-
-                            )
+                            .then({})
                             .catch(
                                 (error) => {
                                     console.log(`Error occured: ${error}`)
@@ -42,16 +38,9 @@ const LoginScreen = ({ navigation, route }) => {
                     }
                 })
             }
-        )
-
-        // db.collection("users").doc("cQ7UlNIyl1cylsa6zh2U").collection("favourites").get()
-        //     .then(
-        //         (querySnapshot)=>{
-        //             querySnapshot.forEach((doc) => {
-        //                 console.log(doc.id, " => ", doc.data())
-        //             })
-        //         }
-        //     )
+        ).then(() => {
+            console.log("Save was successful!")
+        })
 
         // if(isFound === false){
         //     Alert.alert(
