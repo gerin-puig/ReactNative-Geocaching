@@ -6,6 +6,7 @@ import FavouritesScreen from './Favourites'
 import SitesList from './SitesList'
 import AddNewSite from './AddSite'
 import UserRecords from './UserRecords'
+import UserRecordsNavigation from './UserRecordsNav'
 
 const Tab = createBottomTabNavigator()
 
@@ -33,7 +34,7 @@ const HomeScreen = () => {
             tabBarOptions={{ activeTintColor: "green", inactiveTintColor: "gray" }}>
             <Tab.Screen name="List" component={SitesList} />
             <Tab.Screen name="Add" component={AddNewSite} />
-            <Tab.Screen name="Records" component={UserRecords} />
+            <Tab.Screen name="Records" component={UserRecordsNavigation} />
             <Tab.Screen name="Favourites" component={FavouritesScreen} />
         </Tab.Navigator>
     )
