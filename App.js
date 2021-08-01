@@ -6,6 +6,8 @@ import { createStackNavigator } from '@react-navigation/stack'
 import HomeScreen from './Home';
 import LoginScreen from './LoginScreen';
 import Signup from './SignUpScreen';
+import list from './list';
+import SiteDetail from './SiteDetail'
 
 const Stack = createStackNavigator()
 
@@ -22,8 +24,18 @@ export default function App() {
                 <Button title="SignOut" color="#F00" onPress={() => navigation.replace("Login")} />
               )
             })
-          }
+          }   
         />
+        <Stack.Screen name="List" component={list}/>
+        <Stack.Screen name="SiteDetail" component={SiteDetail}
+        options={
+          ({ navigation }) => ({
+            headerRight: () => (
+              <Button title="Back" color="#F00" onPress={() => navigation.replace("List")} />
+            )
+          })
+        }   
+      />
       </Stack.Navigator>
     </NavigationContainer>
   );
