@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, TextInput, Button, Alert } from 'react-native'
+import { View, Text, TextInput, Button, Alert, FlatList, Pressable } from 'react-native'
 import { db } from "./FirebaseManager"
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -9,6 +9,7 @@ const AddNewSite = () => {
     const [getLong, setLong] = useState("")
     const [getDesc, setDesc] = useState("")
     const [getUId, setUId] = useState("")
+    const [getUserLocations, setUserLocations] = useState([])
 
     useEffect(
         () => {
@@ -20,9 +21,19 @@ const AddNewSite = () => {
                         }
                         else {
                             //console.log(dataFromStorage)
-
+                            setUId(dataFromStorage)
+                            return db.collection("users").doc(dataFromStorage).collection("added_locations").get().then({})
                         }
-                        setUId(dataFromStorage)
+
+                    }
+                )
+                .then(
+                    (qSnapshot) => {
+                        let temp = []
+                        qSnapshot.forEach((doc) => {
+                            temp.push(doc.data())
+                        })
+                        setUserLocations(temp)
                     }
                 )
                 .catch((error) => { console.log(`Error occured: ${error}`) })
@@ -33,12 +44,12 @@ const AddNewSite = () => {
         let newSite = {
             title: getSiteName,
             user: getUId,
-            Latitude: getLat,
-            Longitude: getLong,
+            Latitude: parseFloat(getLat),
+            Longitude: parseFloat(getLong),
             Desc: getDesc
         }
 
-        db.collection("locations").add(newSite)
+        db.collection("geocachingSites").add(newSite)
             .then(
                 (doc) => {
                     console.log("Document created with id:" + doc.id)
@@ -56,6 +67,14 @@ const AddNewSite = () => {
             .catch(
                 (error) => { console.log(error) }
             )
+
+        db.collection("users").doc(getUId).collection("added_locations").add(newSite)
+            .then(
+                console.log("Document added to user list")
+            )
+            .catch(
+                (error) => { console.log(error) }
+            )
     }
 
     return (
@@ -66,6 +85,21 @@ const AddNewSite = () => {
             <TextInput placeholder="Enter Longitude" value={getLong} onChangeText={(data) => { setLong(data) }} />
             <TextInput placeholder="Enter Description" value={getDesc} onChangeText={(data) => { setDesc(data) }} />
             <Button title="Add" onPress={addPressed} />
+            {
+                getUserLocations.length <= 0 ? (<Text>No Geocaching Sites Added</Text>) : (
+                    <FlatList data={getUserLocations}
+                        keyExtractor={(item, index) => { return item["title"] }}
+                        renderItem={({ item, index }) => (
+                            <Pressable onPress={() => { console.log("item pressed") }} onLongPress={() => { console.log(item.title + " is selected") }}>
+                                <View>
+                                    <Text>{item.title}</Text>
+                                </View>
+                            </Pressable>
+
+                        )}
+                    />
+                )
+            }
         </View>
     )
 }
