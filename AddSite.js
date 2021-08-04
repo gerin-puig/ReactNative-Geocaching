@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { View, Text, TextInput, Button, Alert, FlatList, Pressable } from 'react-native'
 import { db } from "./FirebaseManager"
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { styles } from './Style'
 
 const AddNewSite = ({ navigation, route }) => {
     const [getSiteName, setSiteName] = useState("")
@@ -123,26 +124,34 @@ const AddNewSite = ({ navigation, route }) => {
     }
 
     return (
-        <View>
-            <Text>Enter Title, Latitude, Longitude and Description to add a new site:</Text>
-            <TextInput placeholder="Enter Title" value={getSiteName} onChangeText={(data) => { setSiteName(data) }} />
-            <TextInput placeholder="Enter Latitude" value={getLat} onChangeText={(data) => { setLat(data) }} />
-            <TextInput placeholder="Enter Longitude" value={getLong} onChangeText={(data) => { setLong(data) }} />
-            <TextInput placeholder="Enter Description" value={getDesc} onChangeText={(data) => { setDesc(data) }} />
-            <Button title="Add" onPress={addPressed} />
+        <View style={styles.container}>
+            <Text style={styles.header}>Enter Title, Latitude, Longitude and Description to add a new site:</Text>
+            <TextInput style={styles.input} placeholder="Enter Title" value={getSiteName} onChangeText={(data) => { setSiteName(data) }} />
+            <TextInput style={styles.input} placeholder="Enter Latitude" value={getLat} keyboardType="numeric" onChangeText={(data) => { setLat(data) }} />
+            <TextInput style={styles.input} placeholder="Enter Longitude" value={getLong} keyboardType="numeric" onChangeText={(data) => { setLong(data) }} />
+            <TextInput style={styles.input} placeholder="Enter Description" value={getDesc} multiline={true} maxLength={50} numberOfLines={2} onChangeText={(data) => { setDesc(data) }} />
+            <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'rgb(210,230,255)' : 'green' }, styles.buttons, { width: 150 }]} onPress={addPressed}>
+                <Text style={styles.button_text}>ADD SITE</Text>
+            </Pressable>
             {
-                getUserLocations.length <= 0 ? (<Text>No Geocaching Sites Added</Text>) : (
-                    <FlatList data={getUserLocations} extraData={getUserLocations}
-                        keyExtractor={(item, index) => { return item["title"] }}
-                        renderItem={({ item, index }) => (
-                            <Pressable onPress={() => { itemPressed(index) }} onLongPress={() => { console.log(item.title + " is selected") }}>
-                                <View>
-                                    <Text>{item.title}</Text>
-                                </View>
-                            </Pressable>
+                getUserLocations.length <= 0 ? (<Text style={styles.noneFound}>No Geocaching Sites Added</Text>) : (
+                    <View>
+                        <Text style={{ textAlign: 'center', marginTop: 10, fontSize: 18, fontWeight: 'bold' }}>Added Sites:</Text>
 
-                        )}
-                    />
+                        <FlatList style={{ marginTop: 10 }} data={getUserLocations} extraData={getUserLocations}
+                            keyExtractor={(item, index) => { return item["title"] }}
+                            renderItem={({ item, index }) => (
+                                <Pressable onPress={() => { itemPressed(index) }} onLongPress={() => { console.log(item.title + " is selected") }}>
+                                    <View style={styles.separator} />
+                                    <View style={{ alignItems: 'center' }}>
+                                        <Text style={styles.list_item}>{item.title}</Text>
+                                    </View>
+                                    <View style={styles.separator} />
+                                </Pressable>
+
+                            )}
+                        />
+                    </View>
                 )
             }
         </View>

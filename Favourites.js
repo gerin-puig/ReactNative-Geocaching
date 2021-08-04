@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, Pressable, FlatList } from 'react-native
 import { db } from './FirebaseManager'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useIsFocused } from '@react-navigation/native'
+import { styles } from './Style'
 
 const FavouritesScreen = ({ navigation, route }, props) => {
     const [getData, setData] = useState([])
@@ -65,15 +66,16 @@ const FavouritesScreen = ({ navigation, route }, props) => {
     }
 
     return (
-        <View>
+        <View style={styles.container}>
             {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
                 <FlatList data={getData} extraData={getData}
                     keyExtractor={(item, index) => { return item["title"] }}
                     renderItem={({ item, index }) => (
                         <Pressable onPress={() => { itemPressed(index) }} onLongPress={() => { console.log(item.title + " is selected") }}>
-                            <View>
-                                <Text>{item.title}</Text>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={styles.list_item}>{item.title}</Text>
                             </View>
+                            <View style={styles.separator} />
                         </Pressable>
 
                     )}

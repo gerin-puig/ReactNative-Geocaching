@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react"
-import { View, TextInput, Button, SafeAreaView, Text, StyleSheet, Alert } from "react-native"
+import { View, TextInput, Button, SafeAreaView, Text, StyleSheet, Alert, Pressable } from "react-native"
 import { db } from "./FirebaseManager"
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Location from "expo-location"
+import { styles } from "./Style"
 
 const LoginScreen = ({ navigation, route }) => {
 
@@ -45,11 +46,12 @@ const LoginScreen = ({ navigation, route }) => {
                                 )
                             check = true
                         }
+                        
                     })
                     console.log(check)
-                    if (!check) {
-                        throw new Error("")
-                    }
+                        if (!check) {
+                            throw new Error("")
+                        }
                 }
             )
             .catch((e) => {
@@ -72,13 +74,16 @@ const LoginScreen = ({ navigation, route }) => {
     }
 
     return (
-        <SafeAreaView>
-            <Text>Please Sign In</Text>
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.header}>PLEASE SIGN IN</Text>
             <View>
-                <TextInput placeholder="Enter Email" value={email} onChangeText={(data) => { setEmail(data) }} />
-                <TextInput placeholder="Enter Password" value={password} onChangeText={(data) => { setPassword(data) }} />
-                <Button title="Login" onPress={loginPressed} />
-                <Button title="Sign Up" onPress={signUpPressed} />
+                <TextInput style={styles.input} placeholder="Enter Email" keyboardType='email-address' value={email} onChangeText={(data) => { setEmail(data) }} />
+                <TextInput style={styles.input} placeholder="Enter Password" secureTextEntry={true} value={password} onChangeText={(data) => { setPassword(data) }} />
+                <Pressable style={({pressed})=>[{backgroundColor: pressed ? 'rgb(210,230,255)':'green'}, styles.buttons]} onPress={loginPressed}>
+                    <Text style={styles.button_text}>LOGIN</Text></Pressable>
+                
+                <Pressable style={({pressed})=>[{backgroundColor: pressed ? 'rgb(210,230,255)':'green'}, styles.buttons]} onPress={signUpPressed}>
+                    <Text style={styles.button_text}>SIGN UP</Text></Pressable>
             </View>
         </SafeAreaView>
     )

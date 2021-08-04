@@ -3,8 +3,9 @@ import { View, Pressable, Button, SafeAreaView, Text, StyleSheet, Alert, FlatLis
 import { db } from "./FirebaseManager"
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useIsFocused } from "@react-navigation/native"
+import { styles } from "./Style"
 
-const UserRecords = ({navigation, route}, props) => {
+const UserRecords = ({ navigation, route }, props) => {
     const [getData, setData] = useState([])
     const [isLoading, setLoading] = useState(true)
     const [getDocIds, setDocIds] = useState([])
@@ -12,7 +13,7 @@ const UserRecords = ({navigation, route}, props) => {
 
     useEffect(
         () => {
-           getDataFromFirestore()
+            getDataFromFirestore()
 
         }, []
     )
@@ -22,58 +23,59 @@ const UserRecords = ({navigation, route}, props) => {
             getDataFromFirestore()
         }
     }, [props, isFocused]
-)
+    )
 
     const getDataFromFirestore = () => {
         AsyncStorage.getItem("uid")
-        .then(
-            (dataFromStorage) => {
-                if (dataFromStorage === null) {
-                    console.log("Could not find data for key = uid")
+            .then(
+                (dataFromStorage) => {
+                    if (dataFromStorage === null) {
+                        console.log("Could not find data for key = uid")
+                    }
+                    else {
+                        return db.collection("users").doc(dataFromStorage).collection("records").get().then({})
+                    }
                 }
-                else {
-                    return db.collection("users").doc(dataFromStorage).collection("records").get().then({})
+            )
+            .then(
+                (querySnapshot) => {
+                    let temp = []
+                    let idtemps = []
+                    querySnapshot.forEach((doc) => {
+                        //console.log(doc.data())
+                        //console.log(doc.id)
+                        idtemps.push(doc.id)
+                        temp.push(doc.data())
+                    })
+                    setDocIds(idtemps)
+                    setData(temp)
                 }
-            }
-        )
-        .then(
-            (querySnapshot) => {
-                let temp = []
-                let idtemps = []
-                querySnapshot.forEach((doc) => {
-                    //console.log(doc.data())
-                    //console.log(doc.id)
-                    idtemps.push(doc.id)
-                    temp.push(doc.data())
-                })
-                setDocIds(idtemps)
-                setData(temp)
-            }
-        )
-        .finally(
-            () => {
-                setLoading(false)
-            }
-        )
-        .catch(
-            (e) => { console.log(e) }
-        )
+            )
+            .finally(
+                () => {
+                    setLoading(false)
+                }
+            )
+            .catch(
+                (e) => { console.log(e) }
+            )
     }
 
     const itemPressed = (index) => {
-        navigation.navigate("Details", { data: getData[index], id: getDocIds[index], isFav:false, isAddSite: false})
+        navigation.navigate("Details", { data: getData[index], id: getDocIds[index], isFav: false, isAddSite: false })
     }
 
     return (
-        <View>
+        <View style={styles.container}>
             {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
                 <FlatList data={getData}
                     keyExtractor={(item, index) => { return item["site_id"] }}
                     renderItem={({ item, index }) => (
-                        <Pressable onPress={()=>{itemPressed(index)}} onLongPress={() => { console.log(item.title + " is selected") }}>
-                            <View>
-                                <Text>{item.title}</Text>
+                        <Pressable onPress={() => { itemPressed(index) }} onLongPress={() => { console.log(item.title + " is selected") }}>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={styles.list_item}>{item.title}</Text>
                             </View>
+                            <View style={styles.separator} />
                         </Pressable>
 
                     )}
