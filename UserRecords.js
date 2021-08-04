@@ -68,7 +68,7 @@ const UserRecords = ({ navigation, route }, props) => {
     return (
         <View style={styles.container}>
             {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
-                <FlatList data={getData}
+                <FlatList data={getData} extraData={getData}
                     keyExtractor={(item, index) => { return item["site_id"] }}
                     renderItem={({ item, index }) => (
                         <Pressable onPress={() => { itemPressed(index) }} onLongPress={() => { console.log(item.title + " is selected") }}>

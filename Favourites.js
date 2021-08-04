@@ -19,10 +19,10 @@ const FavouritesScreen = ({ navigation, route }, props) => {
     )
 
     useEffect(() => {
-            if (isFocused) {
-                getDataFromFirestore()
-            }
-        }, [props, isFocused]
+        if (isFocused) {
+            getDataFromFirestore()
+        }
+    }, [props, isFocused]
     )
 
 

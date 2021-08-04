@@ -103,7 +103,7 @@ const SiteDetailsScreen = ({ navigation, route }) => {
             {
                 isFav === true ? (<Text></Text>) : (
                     <View style={styles.container}>
-                        <TextInput style={styles.input} maxLength={100} multiline={true} numberOfLines={3} placeholder="Note"
+                        <TextInput style={styles.input} maxLength={100} multiline={true} numberOfLines={3} placeholder="Write Note Here"
                             value={getNote} onChangeText={(data) => { setNote(data) }} />
                         <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'rgb(210,230,255)' : 'green' }, styles.buttons, { width: 150 }]} onPress={saveEditNote}>
                             <Text style={styles.button_text}>SAVE EDIT</Text>
