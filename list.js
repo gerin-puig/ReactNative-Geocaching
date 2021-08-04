@@ -379,7 +379,9 @@ const list = ({ navigation }) => {
     const saveRecord = (item) => {
         const info = {
             title:item.title,
-            site_id:item.site_id
+            site_id:item.site_id,
+            completed:false,
+            note:""
         }
 
         db.collection("users").doc(uid).collection("records").where("site_id", "==", item.site_id).get()
@@ -390,7 +392,7 @@ const list = ({ navigation }) => {
                     throw new Error("")
                   }
                 })
-                return db.collection("users").doc(uid).collection("favourites").add(info).then()
+                return db.collection("users").doc(uid).collection("records").add(info).then()
               }
         )
         .then(

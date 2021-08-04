@@ -67,6 +67,9 @@ const FavouritesScreen = ({ navigation, route }, props) => {
 
     return (
         <View style={styles.container}>
+            <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'rgb(210,230,255)' : 'green' }, styles.buttons, { width: 250 }]} onPress={()=>{getDataFromFirestore()}}>
+                <Text style={{ fontSize: 16, color: 'white', padding: 3 }}>REFRESH LIST</Text>
+            </Pressable>
             {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
                 <FlatList data={getData} extraData={getData}
                     keyExtractor={(item, index) => { return item["title"] }}
