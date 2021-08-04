@@ -18,7 +18,6 @@ const LoginScreen = ({ navigation, route }) => {
     )
 
     const loginPressed = () => {
-        let isFound = false
         let isValid = false
         if (email !== "") {
             isValid = true
@@ -38,7 +37,6 @@ const LoginScreen = ({ navigation, route }) => {
 
                     if (documentFromFirestore.data().email === email && documentFromFirestore.data().password === password) {
                         //console.log(documentFromFirestore.data())
-                        isFound = true
                         navigation.replace("Home")
                         AsyncStorage.setItem("uid", documentFromFirestore.id).then(() => { console.log("uid saved") })
                             .catch(

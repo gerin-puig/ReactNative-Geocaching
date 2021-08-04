@@ -48,9 +48,7 @@ const UserRecords = ({navigation, route}) => {
     )
 
     const itemPressed = (index) => {
-        //console.log(getData[index])
-        //console.log(getDocIds)
-        navigation.navigate("Details", { data: getData[index], id: getDocIds[index]})
+        navigation.navigate("Details", { data: getData[index], id: getDocIds[index], isFav:false})
     }
 
     return (
