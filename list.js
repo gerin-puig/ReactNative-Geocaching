@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { View,SafeAreaView, Text, ActivityIndicator, Pressable, FlatList, Button } from 'react-native'
+import { View,SafeAreaView, Text, ActivityIndicator, Pressable, FlatList, Button , Switch} from 'react-native'
 import { db } from './FirebaseManager'
 import * as Location from "expo-location"
 import Alert from "react-native-awesome-alerts";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const list = ({navigation}) =>{
     const [dis,setDis] = useState([])
@@ -13,10 +13,95 @@ const list = ({navigation}) =>{
         lng:""
     }
     let locFlag = false
-   
+ 
+    let saveFlag = false
     const [isLoading, setLoading] = useState(true)
 
+
     const [showAlert,setShowAlert] = useState(false)
+    const [range,setRange] = useState(0)
+//***************** Async Storage Section Begins*************************************/
+//*********************************************************************************** 
+
+// ASYNC STORAGE FOR FAV SELECTED
+// Use keyword "favArray" to GET Asyn Storage in "favourites.js"
+ 
+//*********************************************************************************** 
+// const getArray = () => {
+//     AsyncStorage.getItem("favArray")
+//       .then(
+//         (dataFromStorage) => {
+//           if (dataFromStorage === null) {
+//             console.log("Could not find data for key = favArray")   
+//             return null       
+//           }
+//           else {
+//             console.log("We found a value under key = favArray")
+//             console.log(dataFromStorage)
+//             const convertedData = JSON.parse(dataFromStorage)
+//             let favList = []
+//             favList.push(convertedData)
+//             console.log(favList)
+//             return favList
+//           }
+//         }
+//       )
+//       .catch(
+//         (error) => {
+//           console.log("Error when fetching primitive from key-value storage")
+//           console.log(error)
+//         }
+//       )
+//   }
+
+//   const saveArray = (store) => {
+//     let tempList = []
+//     let flag = false
+   
+//     let check = null
+//     check = getArray()
+    
+//     if(check == null)
+//     {
+//         console.log("Check is undefined")
+       
+//     }
+//     else
+//     {
+//         for(let index = 0; index <check.length();index++)
+//         {
+//             if(check[index]==store)
+//             {
+//                 flag =true
+//                 console.log("Already existed")
+//             }
+            
+//         }
+//     }
+       
+//     if(!flag)
+//     {
+//         tempList.push({store})
+        
+//       AsyncStorage.setItem("favArray",JSON.stringify(tempList))
+//       .then(
+//        () => {
+//          console.log("Saved in tempList.")
+//             console.log({tempList})
+//       }
+//       ).catch(
+//      (error) => {
+//        console.log(`Error occured when saving a primitive`)
+//        console.log(error)
+//      }
+//    )
+//     }
+//     flag =false
+//   }
+  
+// //***************** Async Storage Section Ends*************************************/
+   
+
      const onAlert = () => {
         setShowAlert(true)
       }
@@ -48,7 +133,7 @@ const list = ({navigation}) =>{
         navigation.replace("SiteDetail",{disItem: item})
     } 
    
-    const [range,setRange] = useState(0)
+   
 
     const getLocationPressed = () => {
         Location.requestForegroundPermissionsAsync().
@@ -93,7 +178,6 @@ const list = ({navigation}) =>{
             {
                 console.log(result<range)
                 temp.push(documentFromFirestore.data())
-
             }
             });
             console.log(temp)
@@ -102,6 +186,7 @@ const list = ({navigation}) =>{
     }
     const loadList = ()=>
     {
+        //getArray()
         db.collection("geocachingSites").get().then((querySnapshot) => {
         let temp = []
         querySnapshot.forEach((documentFromFirestore) => {
@@ -109,11 +194,10 @@ const list = ({navigation}) =>{
         temp.push(documentFromFirestore.data())
         });
         setDis(temp)
+        
         }).finally(setLoading(false));
     }
-    
-        useEffect(loadList,[])
-
+       
         const incPress = () =>
         {
              if(range>=0)
@@ -146,8 +230,53 @@ const list = ({navigation}) =>{
             //     onAlert()
             // }
         }
-            
-  return(
+
+        const saveFav= (title)=>
+        {
+            let temp 
+                
+                db.collection("/users/cQ7UlNIyl1cylsa6zh2U/favourites").get().then((querySnapshot) => {
+                     temp = []
+                    querySnapshot.forEach((documentFromFirestore) => {
+                   // console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
+                   
+                    temp.push(documentFromFirestore.data().title)
+                    });
+                }).then( ()=>
+                    {  
+                        console.log(title)
+                        for(let itt = 0; itt < temp.length ; itt++)
+                        {
+                          
+                            if(temp[itt].localeCompare(title) == 0)
+                            {
+                                    saveFlag = true
+                                    console.log(saveFlag)
+                                    console.log("Already exists")
+                            }
+                        }
+                        }).then(()=>{
+                            if(!saveFlag)
+                            {  
+                                    db.collection("/users/cQ7UlNIyl1cylsa6zh2U/favourites").add({title})
+                                     .then((docRef) => {
+                                    console.log("Document written with ID: ", docRef.id);
+                                
+                                 }).catch((error) => {
+                                    console.error("Error adding document: ", error);
+                                   
+                                });
+                                
+                            }
+                            saveFlag = false
+                        }
+
+                        )
+                       
+                
+        }
+        useEffect(loadList,[])            
+    return(
       <SafeAreaView>    
          <Button title = "+ " onPress = {incPress}></Button>
          <Text>Range Set for {range} Kms</Text>
@@ -158,9 +287,13 @@ const list = ({navigation}) =>{
             <FlatList data={dis}
                 keyExtractor={(item, index) => { return item["title"] }}
                 renderItem={({ item, index }) => (
-                    <Pressable onPress={()=>{itemPressed(item)}} onLongPress={() => { console.log(item.title + " is selected") }}>
+                    <Pressable  onLongPress={() => { console.log(item.title + " is selected") }}>
                         <View>
-                            <Text>{item.title}</Text>
+                            <Text onPress={()=>{itemPressed(item)}}>{item.title}</Text>
+                            <Button title = "Add to Fav" onPress = {()=>{saveFav(item.title)}}/>
+                        
+                             
+                            
                         </View>
                     </Pressable>
                 )}

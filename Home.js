@@ -8,7 +8,7 @@ import FavouritesNav from './FavouritesNav'
 
 const Tab = createBottomTabNavigator()
 
-const HomeScreen = () => {
+const HomeScreen = (navigation) => {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
