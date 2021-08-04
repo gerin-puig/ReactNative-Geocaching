@@ -8,7 +8,7 @@ import FavouritesNav from './FavouritesNav'
 
 const Tab = createBottomTabNavigator()
 
-const HomeScreen = (navigation) => {
+const HomeScreen = ({navigation, route}) => {
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -30,6 +30,7 @@ const HomeScreen = (navigation) => {
                 }
             })}
             tabBarOptions={{ activeTintColor: "green", inactiveTintColor: "gray" }}>
+            
             <Tab.Screen name="List" component={list} />
             <Tab.Screen name="Add" component={AddNewSite} />
             <Tab.Screen name="Records" component={UserRecordsNavigation} />

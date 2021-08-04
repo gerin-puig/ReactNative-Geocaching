@@ -13,7 +13,6 @@ const LoginScreen = ({ navigation, route }) => {
     useEffect(
         () => {
             Location.requestForegroundPermissionsAsync()
-
         }, []
     )
 
@@ -46,12 +45,12 @@ const LoginScreen = ({ navigation, route }) => {
                             )
                         check = true
                     }
-                    console.log(check)
-                    if (!check) {
-                        throw new Error("Email/Password Incorrect")
-                    }
+                    
 
                 })
+                if (!check) {
+                    throw new Error("Email/Password Incorrect")
+                }
             }
         )
             .catch((error) => {

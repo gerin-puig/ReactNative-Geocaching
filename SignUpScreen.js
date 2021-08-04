@@ -59,6 +59,15 @@ const Signup = () => {
       )
       .then(
         (doc) => {
+          Alert.alert(
+            "Sign up",
+            "Account Created!",
+            [
+              {
+                text:"OK"
+              }
+            ]
+          )
           console.log("document created with id: " + doc.id)
         }
       )
