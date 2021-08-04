@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { View,SafeAreaView, Text, ActivityIndicator, Pressable, FlatList, Button , Switch} from 'react-native'
+import React, { useEffect, useState,useRef  } from 'react'
+import { StyleSheet,View,SafeAreaView, Text, ActivityIndicator, Pressable, FlatList, Button , Switch} from 'react-native'
 import { db } from './FirebaseManager'
 import * as Location from "expo-location"
 import Alert from "react-native-awesome-alerts";
+import { Dimensions } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const list = ({navigation}) =>{
     const [dis,setDis] = useState([])
+    const [markers,setMarkers] = useState([])
+    let marklist = []
     let coordinates = 
     {
-        lat: "",
-        lng:""
+        lat: 43.651070,
+        lng:-79.347015
     }
     let locFlag = false
     let userUID
     let saveFlag = false
     let recordFlag = false
+    
     const [isLoading, setLoading] = useState(true)
 
 
@@ -194,6 +199,8 @@ const getUserUID = () => {
     {
         db.collection("geocachingSites").get().then((querySnapshot) => {
             let temp = []
+            let obj
+            let marker
             querySnapshot.forEach((documentFromFirestore) => {
             console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
             let result = distanceInKmBetweenEarthCoordinates(documentFromFirestore.data().Latitude,documentFromFirestore.data().Longitude,coordinates.lat,coordinates.lng)
@@ -208,11 +215,23 @@ const getUserUID = () => {
                     user: documentFromFirestore.data().user,
                     title: documentFromFirestore.data().title           
                 }
+                marker =
+                {
+                    coordinate:{
+                        latitude : documentFromFirestore.data().Latitude,
+                        longitude: documentFromFirestore.data().Longitude,
+                    },
+                    title: documentFromFirestore.data().title,
+                    user: documentFromFirestore.data().user
+                }
                 temp.push(obj)
+                marklist.push(marker)
             }
             });
             console.log(temp)
             setDis(temp)
+            //setMarkers(temp)
+          
             }).finally(setLoading(false));
     }
     const loadList = ()=>
@@ -222,6 +241,7 @@ const getUserUID = () => {
         db.collection("geocachingSites").get().then((querySnapshot) => {
         let temp = []
         let obj
+        let marker
            
         querySnapshot.forEach((documentFromFirestore) => {
         //console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
@@ -233,9 +253,23 @@ const getUserUID = () => {
             user: documentFromFirestore.data().user,
             title: documentFromFirestore.data().title           
         }
+        marker =
+                {
+                    coordinate:{
+                        latitude : documentFromFirestore.data().Latitude,
+                        longitude: documentFromFirestore.data().Longitude,
+                    },
+                    title: documentFromFirestore.data().title,
+                    user: documentFromFirestore.data().user
+                }
         temp.push(obj)
+        marklist.push(marker)
+        console.log("this is Marklist")
+        console.log(marklist)
         });
         setDis(temp)
+        //setMarkers(temp)
+        
         console.log(userUID)
         }).finally(setLoading(false));
     }
@@ -359,15 +393,53 @@ const getUserUID = () => {
                         }
                         )              
         }
+            const mapRef = useRef(null)
+            const [currRegion, setCurrRegion] = useState({
+              latitude:coordinates.lat ,
+              longitude: coordinates.lng,
+              latitudeDelta: 0.01,
+              longitudeDelta:0.01
+            })
+            const mapMoved = (data) => {
+              console.log(data)
+              // OPTIONAL: you can update the state variable and do something with the updated region info later
+              setCurrRegion(data)
+            }
+            
+           
         useEffect(loadList,[])            
     return(
       <SafeAreaView>    
+
+            {isLoading ? (<ActivityIndicator animating={false} size="large" />) : (
+            
+             
+            <MapView ref={mapRef}  style={{ width: Dimensions.get("window").width, height: 300 }} initialRegion={currRegion} region={currRegion} >
+                <Marker coordinate={{latitude:45.5163539, longitude:-73.5775142}}
+         title="Schwartz's Deli"
+         description="We make a really good sandwich"></Marker>
+                <Marker coordinate = {{latitude:currRegion.latitude, longitude:currRegion.longitude}} title ="Hello" ></Marker>
+            {  
+                marklist.map((item, index) => {
+                     console.log(item)
+                  return( <Marker coordinate= {item.coordinate} title={item.title} description="Here somewhere" key={index}></Marker>) 
+          
+                })
+             
+          }
+           </MapView>
+      )}
+
+  
+
+        
          <Button title = "+ " onPress = {incPress}></Button>
          <Text>Range Set for {range} Kms</Text>
          <Button title = "- " onPress = {decPress}></Button>
          <Button title = "Select" onPress = {selPressed}></Button>
          <Button title = "location" onPress = {getLocationPressed}></Button>
          {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
+            
             <FlatList data={dis}
                 keyExtractor={(item, index) => { return item["title"] }}
                 renderItem={({ item, index }) => (
@@ -381,6 +453,10 @@ const getUserUID = () => {
                 )}
             />
         )}
+       
+          
+         
+       
         <Alert
         
         show = {showAlert}
@@ -392,4 +468,23 @@ const getUserUID = () => {
   )
 }
 
+
 export default list
+
+
+// {
+//     currRegion.dis.map( (item, index)=> {
+//     return <Marker coordinate={{ latitude: item.Latitude, longitude: item.Longitude }} title={item.title} description="Here somewhere" key={index}></Marker>
+// })
+// }
+
+
+{/* <Marker coordinate={{latitude:currRegion.latitude, longitude:currRegion.longitude}}
+title="Schwartz's Deli"
+description="We make a really good sandwich"></Marker>
+<Marker coordinate={{latitude:45.5163539, longitude:-73.5775142}}
+title="Schwartz's Deli"
+description="We make a really good sandwich"></Marker>
+<Marker coordinate={{latitude:42.515940, longitude:-73.577550}}
+title="Main Street Deli"
+description="We also make a really good sandwich"></Marker> */}
