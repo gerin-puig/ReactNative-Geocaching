@@ -1,20 +1,21 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
+import FavouritesScreen from './Favourites'
+import FavouritesDetailScreen from './FavouritesDetailScreen'
 import SiteDetailsScreen from './SiteDetailsScreen'
-import UserRecords from './UserRecords'
 
 const Stack = createStackNavigator()
 
-const UserRecordsNavigation = () => {
-    return (
+const FavouritesNav = () => {
+    return(
         <NavigationContainer independent={true}>
             <Stack.Navigator>
-                <Stack.Screen name="UserRecords" component={UserRecords} options={{ title: "Records" }}/>
-                <Stack.Screen name="Details" component={SiteDetailsScreen}/>
+                <Stack.Screen name="Favourites" component={FavouritesScreen} />
+                <Stack.Screen name="FavouriteDetail" component={SiteDetailsScreen} options={{title:"Details"}}/>
             </Stack.Navigator>
         </NavigationContainer>
     )
 }
 
-export default UserRecordsNavigation
+export default FavouritesNav
