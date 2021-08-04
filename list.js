@@ -415,10 +415,7 @@ const getUserUID = () => {
             
              
             <MapView ref={mapRef}  style={{ width: Dimensions.get("window").width, height: 300 }} initialRegion={currRegion} region={currRegion} >
-                <Marker coordinate={{latitude:45.5163539, longitude:-73.5775142}}
-         title="Schwartz's Deli"
-         description="We make a really good sandwich"></Marker>
-                <Marker coordinate = {{latitude:currRegion.latitude, longitude:currRegion.longitude}} title ="Hello" ></Marker>
+              
             {  
                 marklist.map((item, index) => {
                      console.log(item)
@@ -432,22 +429,29 @@ const getUserUID = () => {
 
   
 
+         <View style ={styles.Button}>
+         <Button style ={styles.item} title = "+ " onPress = {incPress}></Button>
+         <Text style ={styles.item} >Range Set for {range} Kms</Text>
+         <Button style ={styles.item} title = "- " onPress = {decPress}></Button>
+         <Button style ={styles.item} title = "Select" onPress = {selPressed}></Button>
+         <Button style ={styles.item} title = "location" onPress = {getLocationPressed}></Button>
+         </View>
         
-         <Button title = "+ " onPress = {incPress}></Button>
-         <Text>Range Set for {range} Kms</Text>
-         <Button title = "- " onPress = {decPress}></Button>
-         <Button title = "Select" onPress = {selPressed}></Button>
-         <Button title = "location" onPress = {getLocationPressed}></Button>
          {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
             
-            <FlatList data={dis}
+            <FlatList  data={dis}
                 keyExtractor={(item, index) => { return item["title"] }}
                 renderItem={({ item, index }) => (
                     <Pressable  onLongPress={() => { console.log(item.title + " is selected") }}>
-                        <View>
-                            <Text onPress={()=>{itemPressed(item)}}>{item.title}</Text>
+                        <View style = {styles.main}  >
+                            
+                            <Text></Text>
+                            <View style={styles.list}>
                             <Button title = "Add to Fav" onPress = {()=>{saveFav(item)}}/>
+                            <Text onPress={()=>{itemPressed(item)}}>{item.title}</Text>
                             <Button title = "Add to Records" onPress = {()=>{saveRecord(item)}}/>
+                            </View>
+                           
                         </View>
                     </Pressable>
                 )}
@@ -468,6 +472,33 @@ const getUserUID = () => {
   )
 }
 
+const styles = StyleSheet.create({
+  
+    Button:{
+        
+        flexDirection:'row',
+        
+        alignItems:'center',
+        justifyContent:'space-between'
+      
+    },
+    item:
+    {
+        marginLeft:10,
+        marginStart:10
+    },
+    list:{
+        flexDirection:'row',
+        justifyContent:'space-between'
+       
+    },
+    main:{
+        flexDirection:'column',
+       
+       
+    }
+
+  });
 
 export default list
 
