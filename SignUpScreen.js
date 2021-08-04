@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
-import { View, TextInput, Button, SafeAreaView, Text, StyleSheet, Alert, SectionList } from "react-native"
+import { View, TextInput, Button, Pressable, Text, StyleSheet, Alert, SectionList } from "react-native"
 import { db } from "./FirebaseManager"
+import { styles } from "./Style"
 
 const Signup = () => {
   const [email, setEmail] = useState("")
@@ -22,7 +23,7 @@ const Signup = () => {
       console.log("password too short")
     }
 
-    if (fname === "" || lname ==="") {
+    if (fname === "" || lname === "") {
       isValid = false
     }
 
@@ -32,7 +33,7 @@ const Signup = () => {
         "Please fill-in all fields & make sure password is more than 6 characters.",
         [
           {
-            text:"OK"
+            text: "OK"
           }
         ]
       )
@@ -59,6 +60,15 @@ const Signup = () => {
       )
       .then(
         (doc) => {
+          Alert.alert(
+            "Sign up",
+            "Account Created!",
+            [
+              {
+                text: "OK"
+              }
+            ]
+          )
           console.log("document created with id: " + doc.id)
         }
       )
@@ -68,36 +78,26 @@ const Signup = () => {
           e,
           [
             {
-              text:"OK"
+              text: "OK"
             }
           ]
         )
       })
 
-
-    //console.log(isValid)
-
-
-
-    // db.collection("users").add(user)
-    //   .then(
-    //     (doc) => {
-    //       console.log("Document created with id:" + doc.id)
-    //     }
-    //   )
-    //   .catch(
-    //     (error) => { console.log(error) }
-    //   )
   }
 
 
   return (
-    <View>
-      <TextInput placeholder="Enter Email" value={email} onChangeText={(data) => { setEmail(data) }} />
-      <TextInput placeholder="Enter Password" value={password} onChangeText={(data) => { setPassword(data) }} />
-      <TextInput placeholder="Enter First Name" value={fname} onChangeText={(data) => { setFName(data) }} />
-      <TextInput placeholder="Enter Last Name" value={lname} onChangeText={(data) => { setLName(data) }} />
-      <Button title="Sign Up" onPress={signUpPressed} />
+    <View style={styles.container}>
+      <Text style={styles.header}>Please fill in the fields:</Text>
+      <TextInput style={styles.input} placeholder="Enter Email" value={email} onChangeText={(data) => { setEmail(data) }} />
+      <TextInput style={styles.input} placeholder="Enter Password" value={password} onChangeText={(data) => { setPassword(data) }} />
+      <TextInput style={styles.input} placeholder="Enter First Name" value={fname} onChangeText={(data) => { setFName(data) }} />
+      <TextInput style={styles.input} placeholder="Enter Last Name" value={lname} onChangeText={(data) => { setLName(data) }} />
+
+      <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'rgb(210,230,255)' : 'green' }, styles.buttons, { width: 150 }]} onPress={signUpPressed}>
+        <Text style={styles.button_text}>SIGN UP</Text>
+      </Pressable>
     </View>
   )
 }

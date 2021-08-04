@@ -3,12 +3,12 @@ import { View, Text, ActivityIndicator, Pressable, FlatList } from 'react-native
 import { db } from './FirebaseManager'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useIsFocused } from '@react-navigation/native'
+import { styles } from './Style'
 
 const FavouritesScreen = ({ navigation, route }, props) => {
     const [getData, setData] = useState([])
     const [isLoading, setLoading] = useState(true)
     const [getDocIds, setDocIds] = useState([])
-    const [getuid, setuid] = useState("")
     const isFocused = useIsFocused()
 
     useEffect(
@@ -19,10 +19,10 @@ const FavouritesScreen = ({ navigation, route }, props) => {
     )
 
     useEffect(() => {
-            if (isFocused) {
-                getDataFromFirestore()
-            }
-        }, [props, isFocused]
+        if (isFocused) {
+            getDataFromFirestore()
+        }
+    }, [props, isFocused]
     )
 
 
@@ -35,7 +35,6 @@ const FavouritesScreen = ({ navigation, route }, props) => {
                         console.log("Could not find data for key = uid")
                     }
                     else {
-                        setuid(dataFromStorage)
                         return db.collection("users").doc(dataFromStorage).collection("favourites").get().then({})
                     }
                 }
@@ -63,19 +62,23 @@ const FavouritesScreen = ({ navigation, route }, props) => {
     }
 
     const itemPressed = (index) => {
-        navigation.navigate("FavouriteDetail", { data: getData[index], id: getDocIds[index], isFav: true })
+        navigation.navigate("FavouriteDetail", { data: getData[index], id: getDocIds[index], isFav: true, isAddSite: false })
     }
 
     return (
-        <View>
+        <View style={styles.container}>
+            <Pressable style={({ pressed }) => [{ backgroundColor: pressed ? 'rgb(210,230,255)' : 'green' }, styles.buttons, { width: 250 }]} onPress={()=>{getDataFromFirestore()}}>
+                <Text style={{ fontSize: 16, color: 'white', padding: 3 }}>REFRESH LIST</Text>
+            </Pressable>
             {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
                 <FlatList data={getData} extraData={getData}
                     keyExtractor={(item, index) => { return item["title"] }}
                     renderItem={({ item, index }) => (
                         <Pressable onPress={() => { itemPressed(index) }} onLongPress={() => { console.log(item.title + " is selected") }}>
-                            <View>
-                                <Text>{item.title}</Text>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={styles.list_item}>{item.title}</Text>
                             </View>
+                            <View style={styles.separator} />
                         </Pressable>
 
                     )}
