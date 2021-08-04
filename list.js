@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { View,SafeAreaView, Text, ActivityIndicator, Pressable, FlatList, Button , Switch} from 'react-native'
+import React, { useEffect, useState,useRef  } from 'react'
+import { StyleSheet,View,SafeAreaView, Text, ActivityIndicator, Pressable, FlatList, Button , Switch} from 'react-native'
 import { db } from './FirebaseManager'
 import * as Location from "expo-location"
 import Alert from "react-native-awesome-alerts";
+import { Dimensions } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const list = ({navigation}) =>{
     const [dis,setDis] = useState([])
+    const [markers,setMarkers] = useState([])
+    let marklist = []
     let coordinates = 
     {
-        lat: "",
-        lng:""
+        lat: 43.651070,
+        lng:-79.347015
     }
     let locFlag = false
     let userUID
     let saveFlag = false
     let recordFlag = false
+    
     const [isLoading, setLoading] = useState(true)
 
 
@@ -194,6 +199,8 @@ const getUserUID = () => {
     {
         db.collection("geocachingSites").get().then((querySnapshot) => {
             let temp = []
+            let obj
+            let marker
             querySnapshot.forEach((documentFromFirestore) => {
             console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
             let result = distanceInKmBetweenEarthCoordinates(documentFromFirestore.data().Latitude,documentFromFirestore.data().Longitude,coordinates.lat,coordinates.lng)
@@ -208,11 +215,23 @@ const getUserUID = () => {
                     user: documentFromFirestore.data().user,
                     title: documentFromFirestore.data().title           
                 }
+                marker =
+                {
+                    coordinate:{
+                        latitude : documentFromFirestore.data().Latitude,
+                        longitude: documentFromFirestore.data().Longitude,
+                    },
+                    title: documentFromFirestore.data().title,
+                    user: documentFromFirestore.data().user
+                }
                 temp.push(obj)
+                marklist.push(marker)
             }
             });
             console.log(temp)
             setDis(temp)
+            //setMarkers(temp)
+          
             }).finally(setLoading(false));
     }
     const loadList = ()=>
@@ -222,6 +241,7 @@ const getUserUID = () => {
         db.collection("geocachingSites").get().then((querySnapshot) => {
         let temp = []
         let obj
+        let marker
            
         querySnapshot.forEach((documentFromFirestore) => {
         //console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
@@ -233,9 +253,23 @@ const getUserUID = () => {
             user: documentFromFirestore.data().user,
             title: documentFromFirestore.data().title           
         }
+        marker =
+                {
+                    coordinate:{
+                        latitude : documentFromFirestore.data().Latitude,
+                        longitude: documentFromFirestore.data().Longitude,
+                    },
+                    title: documentFromFirestore.data().title,
+                    user: documentFromFirestore.data().user
+                }
         temp.push(obj)
+        marklist.push(marker)
+        console.log("this is Marklist")
+        console.log(marklist)
         });
         setDis(temp)
+        //setMarkers(temp)
+        
         console.log(userUID)
         }).finally(setLoading(false));
     }
@@ -277,7 +311,7 @@ const getUserUID = () => {
         {
             let temp 
            
-                db.collection('/users/7hQ318esNTiesTE3Bc0u/favourites').get().then((querySnapshot) => {
+            db.collection("users").doc(userUID).collection("favourites").get().then((querySnapshot) => {
                      temp = []
                     querySnapshot.forEach((documentFromFirestore) => {
                    // console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
@@ -301,7 +335,7 @@ const getUserUID = () => {
                             if(!saveFlag)
                             {  
                                
-                                    db.collection('/users/7hQ318esNTiesTE3Bc0u/favourites').add({
+                                db.collection("users").doc(userUID).collection("favourites").add({
                                         site_id:item.site_id,
                                         title:item.title
                                     } )
@@ -319,7 +353,7 @@ const getUserUID = () => {
         {
             let temp 
                 
-                db.collection("/users/7hQ318esNTiesTE3Bc0u/records").get().then((querySnapshot) => {
+            db.collection("users").doc(userUID).collection("records").get().then((querySnapshot) => {
                      temp = []
                     querySnapshot.forEach((documentFromFirestore) => {
                    console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
@@ -342,8 +376,8 @@ const getUserUID = () => {
                         }).then(()=>{
                             if(!recordFlag)
                             {  
-                               
-                                    db.collection("/users/7hQ318esNTiesTE3Bc0u/records").add({
+                                
+                                db.collection("users").doc(userUID).collection("records").add({
                                         site_id:item.site_id,
                                         title:item.title,
                                         note: "",
@@ -359,28 +393,74 @@ const getUserUID = () => {
                         }
                         )              
         }
+            const mapRef = useRef(null)
+            const [currRegion, setCurrRegion] = useState({
+              latitude:coordinates.lat ,
+              longitude: coordinates.lng,
+              latitudeDelta: 0.01,
+              longitudeDelta:0.01
+            })
+            const mapMoved = (data) => {
+              console.log(data)
+              // OPTIONAL: you can update the state variable and do something with the updated region info later
+              setCurrRegion(data)
+            }
+            
+           
         useEffect(loadList,[])            
     return(
       <SafeAreaView>    
-         <Button title = "+ " onPress = {incPress}></Button>
-         <Text>Range Set for {range} Kms</Text>
-         <Button title = "- " onPress = {decPress}></Button>
-         <Button title = "Select" onPress = {selPressed}></Button>
-         <Button title = "location" onPress = {getLocationPressed}></Button>
+
+            {isLoading ? (<ActivityIndicator animating={false} size="large" />) : (
+            
+             
+            <MapView ref={mapRef}  style={{ width: Dimensions.get("window").width, height: 300 }} initialRegion={currRegion} region={currRegion} >
+              
+            {  
+                marklist.map((item, index) => {
+                     console.log(item)
+                  return( <Marker coordinate= {item.coordinate} title={item.title} description="Here somewhere" key={index}></Marker>) 
+          
+                })
+             
+          }
+           </MapView>
+      )}
+
+  
+
+         <View style ={styles.Button}>
+         <Button style ={styles.item} title = "+ " onPress = {incPress}></Button>
+         <Text style ={styles.item} >Range Set for {range} Kms</Text>
+         <Button style ={styles.item} title = "- " onPress = {decPress}></Button>
+         <Button style ={styles.item} title = "Select" onPress = {selPressed}></Button>
+         <Button style ={styles.item} title = "location" onPress = {getLocationPressed}></Button>
+         </View>
+        
          {isLoading ? (<ActivityIndicator animating={true} size="large" />) : (
-            <FlatList data={dis}
+            
+            <FlatList  data={dis}
                 keyExtractor={(item, index) => { return item["title"] }}
                 renderItem={({ item, index }) => (
                     <Pressable  onLongPress={() => { console.log(item.title + " is selected") }}>
-                        <View>
-                            <Text onPress={()=>{itemPressed(item)}}>{item.title}</Text>
+                        <View style = {styles.main}  >
+                            
+                            <Text></Text>
+                            <View style={styles.list}>
                             <Button title = "Add to Fav" onPress = {()=>{saveFav(item)}}/>
+                            <Text onPress={()=>{itemPressed(item)}}>{item.title}</Text>
                             <Button title = "Add to Records" onPress = {()=>{saveRecord(item)}}/>
+                            </View>
+                           
                         </View>
                     </Pressable>
                 )}
             />
         )}
+       
+          
+         
+       
         <Alert
         
         show = {showAlert}
@@ -392,4 +472,50 @@ const getUserUID = () => {
   )
 }
 
+const styles = StyleSheet.create({
+  
+    Button:{
+        
+        flexDirection:'row',
+        
+        alignItems:'center',
+        justifyContent:'space-between'
+      
+    },
+    item:
+    {
+        marginLeft:10,
+        marginStart:10
+    },
+    list:{
+        flexDirection:'row',
+        justifyContent:'space-between'
+       
+    },
+    main:{
+        flexDirection:'column',
+       
+       
+    }
+
+  });
+
 export default list
+
+
+// {
+//     currRegion.dis.map( (item, index)=> {
+//     return <Marker coordinate={{ latitude: item.Latitude, longitude: item.Longitude }} title={item.title} description="Here somewhere" key={index}></Marker>
+// })
+// }
+
+
+{/* <Marker coordinate={{latitude:currRegion.latitude, longitude:currRegion.longitude}}
+title="Schwartz's Deli"
+description="We make a really good sandwich"></Marker>
+<Marker coordinate={{latitude:45.5163539, longitude:-73.5775142}}
+title="Schwartz's Deli"
+description="We make a really good sandwich"></Marker>
+<Marker coordinate={{latitude:42.515940, longitude:-73.577550}}
+title="Main Street Deli"
+description="We also make a really good sandwich"></Marker> */}
