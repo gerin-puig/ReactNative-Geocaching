@@ -83,20 +83,6 @@ const Signup = () => {
         )
       })
 
-
-    //console.log(isValid)
-
-
-
-    // db.collection("users").add(user)
-    //   .then(
-    //     (doc) => {
-    //       console.log("Document created with id:" + doc.id)
-    //     }
-    //   )
-    //   .catch(
-    //     (error) => { console.log(error) }
-    //   )
   }
 
 

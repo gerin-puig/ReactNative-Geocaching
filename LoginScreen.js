@@ -29,34 +29,34 @@ const LoginScreen = ({ navigation, route }) => {
             return
         }
 
-        db.collection("users").get().then(
-            (querySnapshot) => {
-                let check = false
-                querySnapshot.forEach((documentFromFirestore) => {
-
-                    if (documentFromFirestore.data().email === email && documentFromFirestore.data().password === password) {
-                        //console.log(documentFromFirestore.data())
-                        navigation.replace("Home")
-                        AsyncStorage.setItem("uid", documentFromFirestore.id).then(() => { console.log("uid saved") })
-                            .catch(
-                                (error) => {
-                                    console.log(`Error occured: ${error}`)
-                                }
-                            )
-                        check = true
+        db.collection("users").get()
+            .then(
+                (querySnapshot) => {
+                    let check = false
+                    querySnapshot.forEach((documentFromFirestore) => {
+                        if (documentFromFirestore.data().email === email && documentFromFirestore.data().password === password) {
+                            console.log(documentFromFirestore.data())
+                            navigation.replace("Home")
+                            AsyncStorage.setItem("uid", documentFromFirestore.id).then(() => { console.log("uid saved") })
+                                .catch(
+                                    (error) => {
+                                        console.log(`Error occured: ${error}`)
+                                    }
+                                )
+                            check = true
+                        }
+                    })
+                    console.log(check)
+                    if (!check) {
+                        throw new Error("")
                     }
-                    
-
-                })
-                if (!check) {
-                    throw new Error("Email/Password Incorrect")
                 }
-            }
-        )
-            .catch((error) => {
+            )
+            .catch((e) => {
+                console.log(e)
                 Alert.alert(
                     "Login",
-                    error,
+                    "Email/Password Incorrect.",
                     [
                         {
                             text: "OK"

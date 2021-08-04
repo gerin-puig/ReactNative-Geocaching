@@ -8,10 +8,12 @@ import LoginScreen from './LoginScreen';
 import Signup from './SignUpScreen';
 import list from './list';
 import SiteDetail from './SiteDetail'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createStackNavigator()
 
 export default function App() {
+  
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -21,7 +23,10 @@ export default function App() {
           options={
             ({ navigation }) => ({
               headerRight: () => (
-                <Button title="SignOut" color="#F00" onPress={() => navigation.replace("Login")} />
+                <Button title="SignOut" color="#F00" onPress={()=>{
+                  navigation.replace("Login")
+                  AsyncStorage.removeItem("uid")
+                }} />
               )
             })
           }   

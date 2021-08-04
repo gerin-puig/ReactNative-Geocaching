@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { StyleSheet, Text, View, FlatList, Pressable, Image, Button, Dimensions } from 'react-native'
+import { StyleSheet, Text, View, FlatList, Pressable, Image, Button, Dimensions, TextInput } from 'react-native'
 import { db } from './FirebaseManager'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import MapView, { Marker } from 'react-native-maps'
@@ -9,12 +9,14 @@ const SiteDetailsScreen = ({ navigation, route }) => {
     const { data } = route.params
     const { id } = route.params
     const { isFav } = route.params
+    const { isAddSite } = route.params
+    const [getNote, setNote] = useState("")
     const [getRecord, setRecord] = useState({})
     const [getSiteData, setSiteData] = useState({})
     const [getUId, setUId] = useState("")
     const mapRef = useRef(null)
     const [curRegion, setCurRegion] = useState({
-        latitude: 43, longitude: -79, latitudeDelta: 0.05, longitudeDelta: 0.05
+        latitude: 43, longitude: -79, latitudeDelta: 0.5, longitudeDelta: 0.5
     })
 
     useEffect(
@@ -22,6 +24,7 @@ const SiteDetailsScreen = ({ navigation, route }) => {
             //console.log(data)
             setRecord(data)
             //console.log(id)
+            setNote(data["note"])
 
             gettingSiteData()
 
@@ -78,22 +81,34 @@ const SiteDetailsScreen = ({ navigation, route }) => {
 
     const removedFromFavPressed = () => {
         db.collection("users").doc(getUId).collection("favourites").doc(id).delete().then(
-            ()=>{
+            () => {
                 navigation.goBack()
             }
         )
+    }
 
+    const saveEditNote = () => {
+        db.collection("users").doc(getUId).collection("records").doc(id).update({
+            note: getNote
+        })
     }
 
     return (
 
         <View>
-            <Text>{getRecord["title"]}</Text>
+            <Text>{getSiteData["title"]}</Text>
             <Text>Latitude: {getSiteData["Latitude"]}</Text>
             <Text>Longitude: {getSiteData["Longitude"]}</Text>
             {
                 isFav === true ? (<Text></Text>) : (
-                    <Text>Note: {getRecord["note"]}</Text>,
+                    <View>
+                        <TextInput placeholder="Note" value={getNote} onChangeText={(data) => { setNote(data) }} />
+                        <Button title="Save Edit" onPress={saveEditNote} />
+                    </View>
+                )
+            }
+            {
+                isFav === true ? (<Text></Text>) : (
                     getRecord["completed"] === true ? (<Text>Completed: {String(getRecord["completed"])}</Text>) : (
                         <View>
                             <Text>Progress: In Progress</Text>
@@ -102,12 +117,13 @@ const SiteDetailsScreen = ({ navigation, route }) => {
                     )
                 )
             }
-            
+
             <MapView ref={mapRef} style={{ width: Dimensions.get("window").width, height: 300 }} initialRegion={curRegion} region={curRegion} >
                 <Marker coordinate={{ latitude: curRegion.latitude, longitude: curRegion.longitude }} title={getRecord.title} description="Here somewhere"></Marker>
             </MapView>
             {
-                isFav === true ? (<Button title="Remove from Favourites" onPress={removedFromFavPressed} />) : (<Text></Text>)
+                isAddSite === true ? (<Text></Text>) :
+                    isFav === true ? (<Button title="Remove from Favourites" onPress={removedFromFavPressed} />) : (<Text></Text>)
             }
         </View>
     )

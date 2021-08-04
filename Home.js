@@ -2,9 +2,9 @@ import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import list from './list'
-import AddNewSite from './AddSite'
 import UserRecordsNavigation from './UserRecordsNav'
 import FavouritesNav from './FavouritesNav'
+import AddSiteNav from './AddSiteNav'
 
 const Tab = createBottomTabNavigator()
 
@@ -32,7 +32,7 @@ const HomeScreen = ({navigation, route}) => {
             tabBarOptions={{ activeTintColor: "green", inactiveTintColor: "gray" }}>
             
             <Tab.Screen name="List" component={list} />
-            <Tab.Screen name="Add" component={AddNewSite} />
+            <Tab.Screen name="Add" component={AddSiteNav} />
             <Tab.Screen name="Records" component={UserRecordsNavigation} />
             <Tab.Screen name="Favourites" component={FavouritesNav} />
         </Tab.Navigator>

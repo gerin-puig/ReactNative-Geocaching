@@ -8,7 +8,6 @@ const FavouritesScreen = ({ navigation, route }, props) => {
     const [getData, setData] = useState([])
     const [isLoading, setLoading] = useState(true)
     const [getDocIds, setDocIds] = useState([])
-    const [getuid, setuid] = useState("")
     const isFocused = useIsFocused()
 
     useEffect(
@@ -35,7 +34,6 @@ const FavouritesScreen = ({ navigation, route }, props) => {
                         console.log("Could not find data for key = uid")
                     }
                     else {
-                        setuid(dataFromStorage)
                         return db.collection("users").doc(dataFromStorage).collection("favourites").get().then({})
                     }
                 }
@@ -63,7 +61,7 @@ const FavouritesScreen = ({ navigation, route }, props) => {
     }
 
     const itemPressed = (index) => {
-        navigation.navigate("FavouriteDetail", { data: getData[index], id: getDocIds[index], isFav: true })
+        navigation.navigate("FavouriteDetail", { data: getData[index], id: getDocIds[index], isFav: true, isAddSite: false })
     }
 
     return (
