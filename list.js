@@ -13,8 +13,9 @@ const list = ({navigation}) =>{
         lng:""
     }
     let locFlag = false
- 
+    let userUID
     let saveFlag = false
+    let recordFlag = false
     const [isLoading, setLoading] = useState(true)
 
 
@@ -27,6 +28,28 @@ const list = ({navigation}) =>{
 // Use keyword "favArray" to GET Asyn Storage in "favourites.js"
  
 //*********************************************************************************** 
+const getUserUID = () => {
+    AsyncStorage.getItem("uid")
+      .then(
+        (dataFromStorage) => {
+          if (dataFromStorage === null) {
+            console.log("Could not find data for key = uid")           
+          }
+          else {
+            console.log("We found user' email = uid")
+            console.log(dataFromStorage)
+            userUID = dataFromStorage
+          }
+        }
+      )
+      .catch(
+        (error) => {
+          console.log("Error when fetching primitive from key-value storage")
+          console.log(error)
+        }
+      )
+  }
+ 
 // const getArray = () => {
 //     AsyncStorage.getItem("favArray")
 //       .then(
@@ -177,7 +200,15 @@ const list = ({navigation}) =>{
             if(result<range)
             {
                 console.log(result<range)
-                temp.push(documentFromFirestore.data())
+                obj = {
+                    site_id: documentFromFirestore.id,
+                    Latitude: documentFromFirestore.data().Latitude,
+                    Longitude: documentFromFirestore.data().Longitude,
+                    fav: documentFromFirestore.data().fav,
+                    user: documentFromFirestore.data().user,
+                    title: documentFromFirestore.data().title           
+                }
+                temp.push(obj)
             }
             });
             console.log(temp)
@@ -187,14 +218,25 @@ const list = ({navigation}) =>{
     const loadList = ()=>
     {
         //getArray()
+        getUserUID()
         db.collection("geocachingSites").get().then((querySnapshot) => {
         let temp = []
+        let obj
+           
         querySnapshot.forEach((documentFromFirestore) => {
-        console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
-        temp.push(documentFromFirestore.data())
+        //console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
+        obj = {
+            site_id: documentFromFirestore.id,
+            Latitude: documentFromFirestore.data().Latitude,
+            Longitude: documentFromFirestore.data().Longitude,
+            fav: documentFromFirestore.data().fav,
+            user: documentFromFirestore.data().user,
+            title: documentFromFirestore.data().title           
+        }
+        temp.push(obj)
         });
         setDis(temp)
-        
+        console.log(userUID)
         }).finally(setLoading(false));
     }
        
@@ -231,24 +273,24 @@ const list = ({navigation}) =>{
             // }
         }
 
-        const saveFav= (title)=>
+        const saveFav= (item)=>
         {
             let temp 
-                
-                db.collection("/users/cQ7UlNIyl1cylsa6zh2U/favourites").get().then((querySnapshot) => {
+           
+                db.collection('/users/7hQ318esNTiesTE3Bc0u/favourites').get().then((querySnapshot) => {
                      temp = []
                     querySnapshot.forEach((documentFromFirestore) => {
                    // console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
                    
-                    temp.push(documentFromFirestore.data().title)
+                    temp.push(documentFromFirestore.data())
                     });
                 }).then( ()=>
                     {  
-                        console.log(title)
+                        
                         for(let itt = 0; itt < temp.length ; itt++)
                         {
                           
-                            if(temp[itt].localeCompare(title) == 0)
+                            if(temp[itt].title.localeCompare(item.title) == 0)
                             {
                                     saveFlag = true
                                     console.log(saveFlag)
@@ -258,22 +300,64 @@ const list = ({navigation}) =>{
                         }).then(()=>{
                             if(!saveFlag)
                             {  
-                                    db.collection("/users/cQ7UlNIyl1cylsa6zh2U/favourites").add({title})
+                               
+                                    db.collection('/users/7hQ318esNTiesTE3Bc0u/favourites').add({
+                                        site_id:item.site_id,
+                                        title:item.title
+                                    } )
                                      .then((docRef) => {
-                                    console.log("Document written with ID: ", docRef.id);
-                                
+                                    console.log("Document written with ID: ", docRef.id);                               
                                  }).catch((error) => {
-                                    console.error("Error adding document: ", error);
-                                   
-                                });
-                                
+                                    console.error("Error adding document: ", error);                                  
+                                });                                
                             }
                             saveFlag = false
                         }
-
-                        )
-                       
+                        )              
+        }
+        const saveRecord = (item)=>
+        {
+            let temp 
                 
+                db.collection("/users/7hQ318esNTiesTE3Bc0u/records").get().then((querySnapshot) => {
+                     temp = []
+                    querySnapshot.forEach((documentFromFirestore) => {
+                   console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
+                   
+                    temp.push(documentFromFirestore.data())
+                    });
+                }).then( ()=>
+                    {  
+                        
+                        for(let itt = 0; itt < temp.length ; itt++)
+                        {
+                          
+                            if(temp[itt].title.localeCompare(item.title) == 0)
+                            {
+                                    recordFlag = true
+                                    console.log(recordFlag)
+                                    console.log("Already exists")
+                            }
+                        }
+                        }).then(()=>{
+                            if(!recordFlag)
+                            {  
+                               
+                                    db.collection("/users/7hQ318esNTiesTE3Bc0u/records").add({
+                                        site_id:item.site_id,
+                                        title:item.title,
+                                        note: "",
+                                        completed: false
+                                    } )
+                                     .then((docRef) => {
+                                    console.log("Document written with ID: ", docRef.id);                               
+                                 }).catch((error) => {
+                                    console.error("Error adding document: ", error);                                  
+                                });                                
+                            }
+                            recordFlag = false
+                        }
+                        )              
         }
         useEffect(loadList,[])            
     return(
@@ -290,10 +374,8 @@ const list = ({navigation}) =>{
                     <Pressable  onLongPress={() => { console.log(item.title + " is selected") }}>
                         <View>
                             <Text onPress={()=>{itemPressed(item)}}>{item.title}</Text>
-                            <Button title = "Add to Fav" onPress = {()=>{saveFav(item.title)}}/>
-                        
-                             
-                            
+                            <Button title = "Add to Fav" onPress = {()=>{saveFav(item)}}/>
+                            <Button title = "Add to Records" onPress = {()=>{saveRecord(item)}}/>
                         </View>
                     </Pressable>
                 )}
