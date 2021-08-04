@@ -311,7 +311,7 @@ const getUserUID = () => {
         {
             let temp 
            
-                db.collection('/users/7hQ318esNTiesTE3Bc0u/favourites').get().then((querySnapshot) => {
+            db.collection("users").doc(userUID).collection("favourites").get().then((querySnapshot) => {
                      temp = []
                     querySnapshot.forEach((documentFromFirestore) => {
                    // console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
@@ -335,7 +335,7 @@ const getUserUID = () => {
                             if(!saveFlag)
                             {  
                                
-                                    db.collection('/users/7hQ318esNTiesTE3Bc0u/favourites').add({
+                                db.collection("users").doc(userUID).collection("favourites").add({
                                         site_id:item.site_id,
                                         title:item.title
                                     } )
@@ -353,7 +353,7 @@ const getUserUID = () => {
         {
             let temp 
                 
-                db.collection("/users/7hQ318esNTiesTE3Bc0u/records").get().then((querySnapshot) => {
+            db.collection("users").doc(userUID).collection("records").get().then((querySnapshot) => {
                      temp = []
                     querySnapshot.forEach((documentFromFirestore) => {
                    console.log(`${documentFromFirestore.id}, ${JSON.stringify(documentFromFirestore.data())}`)
@@ -376,8 +376,8 @@ const getUserUID = () => {
                         }).then(()=>{
                             if(!recordFlag)
                             {  
-                               
-                                    db.collection("/users/7hQ318esNTiesTE3Bc0u/records").add({
+                                
+                                db.collection("users").doc(userUID).collection("records").add({
                                         site_id:item.site_id,
                                         title:item.title,
                                         note: "",
