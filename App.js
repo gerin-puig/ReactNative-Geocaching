@@ -28,7 +28,7 @@ export default function App() {
         />
         <Stack.Screen name="List" component={list}/>
         <Stack.Screen name="SiteDetail" component={SiteDetail}
-        options={ ({ navigation }) => ({ headerRight: () => (<Button title="Back" color="#F00" onPress={() => navigation.replace("List")} />)})}   
+        options={ ({ navigation }) => ({ headerRight: () => (<Button title="Back" color="#F00" onPress={() => navigation.replace("Home")} />)})}   
       />
       </Stack.Navigator>
     </NavigationContainer>
